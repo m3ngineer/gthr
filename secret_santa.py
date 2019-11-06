@@ -4,6 +4,7 @@ import random
 import smtplib, ssl
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import numpy as np
 
 import secret_santa_config
 
@@ -33,34 +34,45 @@ def pull_names(secret_santa_config_file):
     pairs that should not be matched
     '''
 
+    # Choose secret santa pairs
     gifter_names = list(secret_santa_config_file.names.keys())
     receiver_names = list(secret_santa_config_file.names.keys())
 
+    pairs = []
+    k = 0
+    while len(receiver_names) > 0:
+        print('trying time {}'.format(k))
+        k += 1
+        for gifter in gifter_names:
+            receiver = random.choice(receiver_names)
+            if gifter != receiver and set([gifter,receiver]) not in secret_santa_config_file.invalid_matches:
+                receiver_names.remove(receiver)
+                pairs.append((receiver, gifter))
+
+    print(len(pairs))
+
+    # Send emails
     subject = 'Your Eng Family Secret Santa name is here!'
 
-    while gifter_names:
-        gifter = random.choice(gifter_names)
-        receiver = random.choice(receiver_names)
+    for pair in pairs:
+        gifter = pair[0]
+        receiver = pair[1]
 
-        if gifter != receiver and set([gifter,receiver]) not in secret_santa_config_file.invalid_matches:
-            receiver_names.remove(receiver)
-            gifter_names.remove(gifter)
+        msg = '''Janet here!
+                <p>Hi {}, your secret santa person for this year is {}!</p>
 
-            msg = '''Janet here!
-                    <p>Hi {}, your secret santa person for this year is {}!</p>
+                <p>If this doesn't look correct, please reply to this email letting
+                me know and we'll repick names.</p>
 
-                    <p>If this doesn't look correct, please reply to this email letting
-                    me know and we'll repick names.</p>
-
-                    <p>Love,<br>
-                    Janet</p>
-                    '''.format(gifter, receiver)
-            recipient_email = secret_santa_config_file.names[gifter]
-            send_email(from_=secret_santa_config_file.email['username'],
-                to_=secret_santa_config_file.email['username'],
-                username=secret_santa_config_file.email['username'],
-                password=secret_santa_config_file.email['password'],
-                subject=subject, body=msg)
+                <p>Love,<br>
+                Janet</p>
+                '''.format(gifter, receiver)
+        gifter_email = secret_santa_config_file.names[gifter]
+        send_email(from_=secret_santa_config_file.email['username'],
+            to_=gifter_email,
+            username=secret_santa_config_file.email['username'],
+            password=secret_santa_config_file.email['password'],
+            subject=subject, body=msg)
 
     print('Emails sent.')
     return
