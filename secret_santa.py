@@ -49,8 +49,6 @@ def pull_names(secret_santa_config_file):
                 receiver_names.remove(receiver)
                 pairs.append((receiver, gifter))
 
-    print(len(pairs))
-
     # Send emails
     subject = 'Your Eng Family Secret Santa name is here!'
 
