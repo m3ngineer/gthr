@@ -35,19 +35,26 @@ def pull_names(secret_santa_config_file):
     '''
 
     # Choose secret santa pairs
-    gifter_names = list(secret_santa_config_file.names.keys())
-    receiver_names = list(secret_santa_config_file.names.keys())
 
-    pairs = []
     k = 0
-    while len(receiver_names) > 0:
-        print('trying time {}'.format(k))
-        k += 1
-        for gifter in gifter_names:
-            receiver = random.choice(receiver_names)
-            if gifter != receiver and set([gifter,receiver]) not in secret_santa_config_file.invalid_matches:
-                receiver_names.remove(receiver)
-                pairs.append((receiver, gifter))
+    check_pairing = True
+    while check_pairing:
+        pairs = []
+        gifter_names = list(secret_santa_config_file.names.keys())
+        receiver_names = list(secret_santa_config_file.names.keys())
+        try:
+            while len(receiver_names) > 0:
+                print('trying time {}'.format(k))
+                k += 1
+                for gifter in gifter_names:
+                    receiver = random.choice(receiver_names)
+                    if gifter != receiver and set([gifter,receiver]) not in secret_santa_config_file.invalid_matches:
+                        receiver_names.remove(receiver)
+                        pairs.append((receiver, gifter))
+            check_pairing = False
+        except:
+            continue
+
 
     # Send emails
     subject = 'Your Eng Family Secret Santa name is here!'
@@ -71,6 +78,7 @@ def pull_names(secret_santa_config_file):
             username=secret_santa_config_file.email['username'],
             password=secret_santa_config_file.email['password'],
             subject=subject, body=msg)
+    print(pairs)
 
     print('Emails sent.')
     return
