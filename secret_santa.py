@@ -5,6 +5,7 @@ import smtplib, ssl
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import numpy as np
+from collections import Counter
 
 import secret_santa_config
 
@@ -35,49 +36,68 @@ def pull_names(secret_santa_config_file):
     '''
 
     # Choose secret santa pairs
+    gifter_names = list(secret_santa_config_file.names.keys())
+    receiver_names = list(secret_santa_config_file.names.keys())
+    pairs = []
 
-    k = 0
-    check_pairing = True
-    while check_pairing:
-        pairs = []
-        gifter_names = list(secret_santa_config_file.names.keys())
-        receiver_names = list(secret_santa_config_file.names.keys())
-        try:
-            while len(receiver_names) > 0:
-                print('trying time {}'.format(k))
-                k += 1
-                for gifter in gifter_names:
-                    receiver = random.choice(receiver_names)
-                    if gifter != receiver and set([gifter,receiver]) not in secret_santa_config_file.invalid_matches:
-                        receiver_names.remove(receiver)
-                        pairs.append((receiver, gifter))
-            check_pairing = False
-        except:
-            continue
+    for gifter in gifter_names:
+        check_pairing = True
+        while check_pairing:
+            receiver = random.choice(receiver_names)
+            if gifter != receiver and set([gifter,receiver]) not in secret_santa_config_file.invalid_matches:
+                receiver_names.remove(receiver)
+                pairs.append((gifter, receiver))
+                check_pairing = False
+
+    print(pairs)
+    # Check pairs
+    check_pairs = Counter([j for i in [list(pair) for pair in pairs] for j in i]).values()
+    pair_warning = any([False if i <= 2 else True for i in check_pairs])
+    if pair_warning:
+        print('Repick names!!')
+
+    # k = 0
+    # check_pairing = True
+    # while check_pairing:
+    #     pairs = []
+    #     gifter_names = list(secret_santa_config_file.names.keys())
+    #     receiver_names = list(secret_santa_config_file.names.keys())
+    #     try:
+    #         while len(receiver_names) > 0:
+    #             print('trying time {}'.format(k))
+    #             k += 1
+    #             for gifter in gifter_names:
+    #                 receiver = random.choice(receiver_names)
+    #                 if gifter != receiver and set([gifter,receiver]) not in secret_santa_config_file.invalid_matches:
+    #                     receiver_names.remove(receiver)
+    #                     pairs.append((receiver, gifter))
+    #         check_pairing = False
+    #     except:
+    #         continue
 
 
     # Send emails
-    subject = 'Your Eng Family Secret Santa name is here!'
-
-    for pair in pairs:
-        gifter = pair[0]
-        receiver = pair[1]
-
-        msg = '''Janet here!
-                <p>Hi {}, your secret santa person for this year is {}!</p>
-
-                <p>If this doesn't look correct, please reply to this email letting
-                me know and we'll repick names.</p>
-
-                <p>Love,<br>
-                Janet</p>
-                '''.format(gifter, receiver)
-        gifter_email = secret_santa_config_file.names[gifter]
-        send_email(from_=secret_santa_config_file.email['username'],
-            to_=gifter_email,
-            username=secret_santa_config_file.email['username'],
-            password=secret_santa_config_file.email['password'],
-            subject=subject, body=msg)
+    # subject = 'Your Eng Family Secret Santa name is here!'
+    #
+    # for pair in pairs:
+    #     gifter = pair[0]
+    #     receiver = pair[1]
+    #
+    #     msg = '''Janet here!
+    #             <p>Hi {}, your secret santa person for this year is {}!</p>
+    #
+    #             <p>If this doesn't look correct, please reply to this email letting
+    #             me know and we'll repick names.</p>
+    #
+    #             <p>Love,<br>
+    #             Janet</p>
+    #             '''.format(gifter, receiver)
+    #     gifter_email = secret_santa_config_file.names[gifter]
+    #     send_email(from_=secret_santa_config_file.email['username'],
+    #         to_=gifter_email,
+    #         username=secret_santa_config_file.email['username'],
+    #         password=secret_santa_config_file.email['password'],
+    #         subject=subject, body=msg)
     print(pairs)
 
     print('Emails sent.')
