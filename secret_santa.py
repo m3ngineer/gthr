@@ -61,7 +61,12 @@ def pull_names(secret_santa_config_file):
     # Check pairs
     check_pairs = Counter([j for i in [list(pair) for pair in pairs] for j in i]).values()
     pair_warning = any([False if i <= 2 else True for i in check_pairs])
+    multiple_names_warning1 = sorted(secret_santa_config.names.keys()) != sorted([i[0] for i in pairs])
+    multiple_names_warning2 = sorted(secret_santa_config.names.keys()) != sorted([i[1] for i in pairs])
     if pair_warning:
+        print('Repick names!!')
+
+    elif multiple_names_warning1 or multiple_names_warning2:
         print('Repick names!!')
 
     else:
