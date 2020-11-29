@@ -55,6 +55,11 @@ def pull_names(secret_santa_config_file):
                     # Start over
                     restart = True
                     check_pairing = False
+                elif (len(receiver_names) == 2) and (set(receiver_names) in secret_santa_config_file.invalid_matches):
+                    # Only remaining names cannot be matched
+                    # Start over
+                    restart = True
+                    check_pairing = False
                 else:
                     continue
 
