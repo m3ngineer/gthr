@@ -76,14 +76,14 @@ def pull_names(secret_santa_config_file):
 
     else:
         # Send emails
-        subject = 'Your Eng Family Secret Santa name is here!'
+        subject = 'Your 2022 Eng Family Secret Santa name is here!'
 
         for pair in pairs:
             gifter = pair[0]
             receiver = pair[1]
 
             msg = '''Janet here!
-                    <p>Hi {}, Sorry about that first email! My software has been upgraded though and I have your new person! Your secret santa person for this year is {}!</p>
+                    <p>Hi {}, Tis the season! Your secret santa person for this year is {}!</p>
 
                     <p>If this doesn't look correct, please reply to this email letting
                     me know and we'll repick names.</p>
